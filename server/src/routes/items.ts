@@ -9,6 +9,7 @@ import {
   validateCreateItem 
 } from '../controllers/itemController';
 import { authenticateToken, optionalAuth } from '../middleware/auth';
+import { createItemLimiter } from '../middleware/security';
 
 const router = Router();
 
@@ -18,7 +19,7 @@ router.get('/featured', getFeaturedItems);
 router.get('/:id', optionalAuth, getItemById);
 
 // Protected routes
-router.post('/', authenticateToken, validateCreateItem, createItem);
+router.post('/', authenticateToken, createItemLimiter, validateCreateItem, createItem);
 router.get('/user/my-items', authenticateToken, getUserItems);
 router.put('/:id', authenticateToken, updateItem);
 

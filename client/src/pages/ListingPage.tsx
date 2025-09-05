@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -109,7 +109,7 @@ const ListingPage: React.FC = () => {
   // Available cities (would come from API in real app)
   const availableCities = ['Mumbai', 'Delhi', 'Bangalore', 'Pune', 'Chennai', 'Hyderabad', 'Kolkata', 'Ahmedabad'];
 
-  const fetchItems = async () => {
+  const fetchItems = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -147,11 +147,11 @@ const ListingPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchQuery, selectedCategory, selectedCondition, selectedCity, priceRange, sortBy, currentPage]);
 
   useEffect(() => {
     fetchItems();
-  }, [searchQuery, selectedCategory, selectedCondition, selectedCity, priceRange, sortBy, currentPage]);
+  }, [fetchItems]);
 
   useEffect(() => {
     // Update URL params when filters change

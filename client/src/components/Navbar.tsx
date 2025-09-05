@@ -230,7 +230,7 @@ const Navbar: React.FC = () => {
               <MenuItem key="listings" onClick={() => { navigate('/my-listings'); handleMenuClose(); }}>
                 My Listings
               </MenuItem>,
-              <MenuItem key="bookings" onClick={() => { navigate('/my-bookings'); handleMenuClose(); }}>
+              <MenuItem key="bookings" onClick={() => { navigate('/bookings'); handleMenuClose(); }}>
                 My Bookings
               </MenuItem>,
               <Divider key="divider" />,
