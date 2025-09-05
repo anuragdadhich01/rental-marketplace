@@ -1,5 +1,6 @@
 import { IItem, IUser, ItemCategory, ItemCondition } from '../types';
 import { db } from './database';
+import { hashPassword } from './auth';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
@@ -405,9 +406,11 @@ export async function seedDatabase() {
   try {
     console.log('🌱 Seeding database with sample data...');
     
-    // Add users
+    // Hash passwords and add users
     for (const user of sampleUsers) {
-      await db.createUser(user);
+      const hashedPassword = await hashPassword('password123'); // Use a common password for demo
+      const userWithHashedPassword = { ...user, password: hashedPassword };
+      await db.createUser(userWithHashedPassword);
     }
     console.log(`✅ Added ${sampleUsers.length} sample users`);
     
@@ -418,6 +421,9 @@ export async function seedDatabase() {
     console.log(`✅ Added ${sampleItems.length} sample items`);
     
     console.log('🎉 Database seeded successfully!');
+    console.log('🔑 Demo login credentials:');
+    console.log('   Admin: priya@example.com / password123');
+    console.log('   User: rahul@example.com / password123');
   } catch (error) {
     console.error('❌ Error seeding database:', error);
   }
