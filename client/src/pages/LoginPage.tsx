@@ -12,9 +12,11 @@ import {
 } from '@mui/material';
 import { Google as GoogleIcon, Facebook as FacebookIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -35,16 +37,11 @@ const LoginPage: React.FC = () => {
     setError('');
 
     try {
-      // TODO: Implement actual login logic
-      console.log('Login attempt:', formData);
-      
-      // Mock successful login
-      setTimeout(() => {
-        setLoading(false);
-        navigate('/');
-      }, 1000);
-    } catch (err) {
-      setError('Login failed. Please try again.');
+      await login(formData.email, formData.password);
+      navigate('/');
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
       setLoading(false);
     }
   };

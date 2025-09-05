@@ -14,9 +14,11 @@ import {
 } from '@mui/material';
 import { Google as GoogleIcon, Facebook as FacebookIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
+  const { register } = useAuth();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -55,16 +57,11 @@ const RegisterPage: React.FC = () => {
     }
 
     try {
-      // TODO: Implement actual registration logic
-      console.log('Registration attempt:', formData);
-      
-      // Mock successful registration
-      setTimeout(() => {
-        setLoading(false);
-        navigate('/');
-      }, 1000);
-    } catch (err) {
-      setError('Registration failed. Please try again.');
+      await register(formData.firstName, formData.lastName, formData.email, formData.password);
+      navigate('/');
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
       setLoading(false);
     }
   };

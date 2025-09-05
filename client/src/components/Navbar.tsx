@@ -20,6 +20,7 @@ import {
 } from '@mui/icons-material';
 import { styled, alpha } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -66,12 +67,9 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
+  const { user, isAuthenticated, logout } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  
-  // Mock user state - in real app, this would come from auth context
-  const isLoggedIn = false;
-  const user: { name?: string } | null = null;
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -126,7 +124,7 @@ const Navbar: React.FC = () => {
 
         {/* Right side - Auth/User Menu */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          {isLoggedIn ? (
+          {isAuthenticated ? (
             <>
               {/* Host your item button */}
               <Button
@@ -155,7 +153,7 @@ const Navbar: React.FC = () => {
                 sx={{ color: 'text.primary' }}
               >
                 <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}>
-                  {(user as any)?.name?.charAt(0) || 'U'}
+                  {user?.firstName?.charAt(0) || 'U'}
                 </Avatar>
               </IconButton>
             </>
@@ -211,7 +209,7 @@ const Navbar: React.FC = () => {
           onClose={handleMenuClose}
           sx={{ mt: 1 }}
         >
-          {isLoggedIn ? (
+          {isAuthenticated ? (
             [
               <MenuItem key="profile" onClick={() => { navigate('/profile'); handleMenuClose(); }}>
                 Profile
@@ -223,7 +221,7 @@ const Navbar: React.FC = () => {
                 My Bookings
               </MenuItem>,
               <Divider key="divider" />,
-              <MenuItem key="logout" onClick={handleMenuClose}>
+              <MenuItem key="logout" onClick={() => { logout(); handleMenuClose(); navigate('/'); }}>
                 Logout
               </MenuItem>
             ]

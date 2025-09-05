@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Container,
@@ -14,6 +14,8 @@ import {
 } from '@mui/material';
 import { Search as SearchIcon, Star } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
+import { useNavigate } from 'react-router-dom';
+import { itemService, Item } from '../services/itemService';
 
 const HeroSection = styled(Box)(({ theme }) => ({
   background: 'linear-gradient(45deg, #FF5A5F 30%, #00A699 90%)',
@@ -72,6 +74,86 @@ const categories = [
   { id: 6, name: 'Musical', image: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400', count: '250+ items' },
 ];
 
+// Mock data for fallback
+const mockFeaturedItems: Item[] = [
+  {
+    id: '1',
+    ownerId: 'mock-owner-1',
+    title: 'MacBook Pro 16" 2023',
+    description: 'High-performance laptop perfect for work or creative projects',
+    category: 'electronics',
+    subCategory: 'laptop',
+    condition: 'like-new',
+    pricing: { daily: 2500, securityDeposit: 50000 },
+    ratings: { average: 4.9, count: 127 },
+    images: ['https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400'],
+    location: { city: 'Mumbai', state: 'Maharashtra', coordinates: { lat: 19.0760, lng: 72.8777 } },
+    availability: { available: true, calendar: [] },
+    policies: { pickupDelivery: 'pickup', cancellationPolicy: 'flexible' },
+    specifications: {},
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    isActive: true
+  } as Item,
+  {
+    id: '2', 
+    ownerId: 'mock-owner-2',
+    title: 'Canon EOS R5 Camera',
+    description: 'Professional camera for photography and videography',
+    category: 'electronics',
+    subCategory: 'camera',
+    condition: 'like-new',
+    pricing: { daily: 3000, securityDeposit: 60000 },
+    ratings: { average: 4.8, count: 89 },
+    images: ['https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=400'],
+    location: { city: 'Delhi', state: 'NCR', coordinates: { lat: 28.6139, lng: 77.2090 } },
+    availability: { available: true, calendar: [] },
+    policies: { pickupDelivery: 'pickup', cancellationPolicy: 'flexible' },
+    specifications: {},
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    isActive: true
+  } as Item,
+  {
+    id: '3',
+    ownerId: 'mock-owner-3',
+    title: 'Herman Miller Ergonomic Chair',
+    description: 'Premium ergonomic office chair for comfortable work',
+    category: 'furniture',
+    subCategory: 'chair',
+    condition: 'good',
+    pricing: { daily: 800, securityDeposit: 15000 },
+    ratings: { average: 4.7, count: 156 },
+    images: ['https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400'],
+    location: { city: 'Bangalore', state: 'Karnataka', coordinates: { lat: 12.9716, lng: 77.5946 } },
+    availability: { available: true, calendar: [] },
+    policies: { pickupDelivery: 'pickup', cancellationPolicy: 'flexible' },
+    specifications: {},
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    isActive: true
+  } as Item,
+  {
+    id: '4',
+    ownerId: 'mock-owner-4',
+    title: 'DJI Mavic Air 2 Drone',
+    description: 'Professional drone for aerial photography and videography',
+    category: 'electronics',
+    subCategory: 'drone',
+    condition: 'like-new',
+    pricing: { daily: 1800, securityDeposit: 30000 },
+    ratings: { average: 4.9, count: 93 },
+    images: ['https://images.unsplash.com/photo-1507582020474-9a35b7d455d9?w=400'],
+    location: { city: 'Pune', state: 'Maharashtra', coordinates: { lat: 18.5204, lng: 73.8567 } },
+    availability: { available: true, calendar: [] },
+    policies: { pickupDelivery: 'pickup', cancellationPolicy: 'flexible' },
+    specifications: {},
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    isActive: true
+  } as Item,
+];
+
 const featuredItems = [
   {
     id: 1,
@@ -112,6 +194,36 @@ const featuredItems = [
 ];
 
 const HomePage: React.FC = () => {
+  const navigate = useNavigate();
+  const [featuredItemsData, setFeaturedItemsData] = useState<Item[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadFeaturedItems = async () => {
+      try {
+        const response = await itemService.getFeaturedItems();
+        if (response.success) {
+          setFeaturedItemsData(response.data);
+        }
+      } catch (error) {
+        console.error('Failed to load featured items:', error);
+        // Use fallback mock data if API fails
+        setFeaturedItemsData(mockFeaturedItems);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadFeaturedItems();
+  }, []);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/listings?search=${encodeURIComponent(searchQuery)}`);
+    }
+  };
   return (
     <Box>
       {/* Hero Section */}
@@ -140,16 +252,20 @@ const HomePage: React.FC = () => {
             </Typography>
             
             {/* Search Bar */}
-            <SearchBar>
-              <InputBase
-                sx={{ ml: 2, flex: 1 }}
-                placeholder="What are you looking for?"
-                inputProps={{ 'aria-label': 'search items' }}
-              />
-              <IconButton type="submit" sx={{ p: '10px' }} aria-label="search">
-                <SearchIcon />
-              </IconButton>
-            </SearchBar>
+            <Box component="form" onSubmit={handleSearch}>
+              <SearchBar>
+                <InputBase
+                  sx={{ ml: 2, flex: 1 }}
+                  placeholder="What are you looking for?"
+                  inputProps={{ 'aria-label': 'search items' }}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <IconButton type="submit" sx={{ p: '10px' }} aria-label="search">
+                  <SearchIcon />
+                </IconButton>
+              </SearchBar>
+            </Box>
           </Box>
         </Container>
       </HeroSection>
@@ -191,34 +307,34 @@ const HomePage: React.FC = () => {
             Featured Items
           </Typography>
           <Grid container spacing={3}>
-            {featuredItems.map((item) => (
+            {(featuredItemsData.length > 0 ? featuredItemsData : featuredItems).map((item: any) => (
               <Grid item xs={12} sm={6} md={3} key={item.id}>
-                <FeaturedItemCard>
+                <FeaturedItemCard onClick={() => navigate(`/item/${item.id}`)}>
                   <CardMedia
                     component="img"
                     height="200"
-                    image={item.image}
-                    alt={item.name}
+                    image={item.images?.[0] || item.image}
+                    alt={item.title || item.name}
                     sx={{ objectFit: 'cover' }}
                   />
                   <CardContent>
                     <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, fontSize: '1rem' }}>
-                      {item.name}
+                      {item.title || item.name}
                     </Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                       <Star sx={{ color: '#FFD700', fontSize: '1rem', mr: 0.5 }} />
                       <Typography variant="body2" sx={{ mr: 1 }}>
-                        {item.rating}
+                        {item.ratings?.average || item.rating}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        ({item.reviews} reviews)
+                        ({item.ratings?.count || item.reviews} reviews)
                       </Typography>
                     </Box>
                     <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                      {item.location}
+                      {item.location?.city ? `${item.location.city}, ${item.location.state}` : item.location}
                     </Typography>
                     <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main' }}>
-                      {item.price}
+                      {item.pricing ? `₹${item.pricing.daily}/day` : item.price}
                     </Typography>
                   </CardContent>
                 </FeaturedItemCard>
