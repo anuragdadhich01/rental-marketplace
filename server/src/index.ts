@@ -4,6 +4,10 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 
+// Routes
+import authRoutes from './routes/auth';
+import itemRoutes from './routes/items';
+
 // Load environment variables
 dotenv.config();
 
@@ -22,14 +26,20 @@ app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'OK', 
     message: 'Rental Marketplace API is running',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    version: '1.0.0'
   });
 });
+
+// API Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/items', itemRoutes);
 
 // Basic error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error(err.stack);
   res.status(500).json({ 
+    success: false,
     error: 'Something went wrong!',
     message: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
   });
@@ -37,12 +47,18 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).json({ error: 'Route not found' });
+  res.status(404).json({ 
+    success: false,
+    error: 'Route not found',
+    path: req.path 
+  });
 });
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
+  console.log(`🔐 Auth endpoints: http://localhost:${PORT}/api/auth/*`);
+  console.log(`📦 Items endpoints: http://localhost:${PORT}/api/items/*`);
 });
 
 export default app;

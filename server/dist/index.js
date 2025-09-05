@@ -8,6 +8,9 @@ const cors_1 = __importDefault(require("cors"));
 const helmet_1 = __importDefault(require("helmet"));
 const morgan_1 = __importDefault(require("morgan"));
 const dotenv_1 = __importDefault(require("dotenv"));
+// Routes
+const auth_1 = __importDefault(require("./routes/auth"));
+const items_1 = __importDefault(require("./routes/items"));
 // Load environment variables
 dotenv_1.default.config();
 const app = (0, express_1.default)();
@@ -23,23 +26,34 @@ app.get('/api/health', (req, res) => {
     res.json({
         status: 'OK',
         message: 'Rental Marketplace API is running',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        version: '1.0.0'
     });
 });
+// API Routes
+app.use('/api/auth', auth_1.default);
+app.use('/api/items', items_1.default);
 // Basic error handling
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).json({
+        success: false,
         error: 'Something went wrong!',
         message: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
     });
 });
 // 404 handler
-app.use('*', (req, res) => {
-    res.status(404).json({ error: 'Route not found' });
+app.use((req, res) => {
+    res.status(404).json({
+        success: false,
+        error: 'Route not found',
+        path: req.path
+    });
 });
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
+    console.log(`🔐 Auth endpoints: http://localhost:${PORT}/api/auth/*`);
+    console.log(`📦 Items endpoints: http://localhost:${PORT}/api/items/*`);
 });
 exports.default = app;
