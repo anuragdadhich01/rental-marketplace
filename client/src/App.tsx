@@ -18,6 +18,7 @@ import ItemDetailsPage from './pages/ItemDetailsPage';
 import ProfilePage from './pages/ProfilePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import BookingPage from './pages/BookingPage';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -224,6 +225,7 @@ function App() {
                 <Route path="/listings" element={<ListingPage />} />
                 <Route path="/item/:id" element={<ItemDetailsPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/bookings" element={<BookingPage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
                 

@@ -12,6 +12,7 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const auth_1 = __importDefault(require("./routes/auth"));
 const items_1 = __importDefault(require("./routes/items"));
 const bookings_1 = __importDefault(require("./routes/bookings"));
+const upload_1 = __importDefault(require("./routes/upload"));
 // Utils
 const seedData_1 = require("./utils/seedData");
 const security_1 = require("./middleware/security");
@@ -30,6 +31,8 @@ app.use(security_1.generalLimiter);
 app.use(security_1.speedLimiter);
 app.use(express_1.default.json({ limit: '10mb' }));
 app.use(express_1.default.urlencoded({ extended: true }));
+// Serve uploaded files
+app.use('/uploads', express_1.default.static(process.env.UPLOAD_PATH || 'uploads'));
 // Routes
 app.get('/api/health', (req, res) => {
     res.json({
@@ -43,6 +46,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', auth_1.default);
 app.use('/api/items', items_1.default);
 app.use('/api/bookings', bookings_1.default);
+app.use('/api/upload', upload_1.default);
 // Basic error handling
 app.use((err, req, res, next) => {
     console.error(err.stack);
@@ -66,6 +70,8 @@ app.listen(PORT, async () => {
     console.log(`🔐 Auth endpoints: http://localhost:${PORT}/api/auth/*`);
     console.log(`📦 Items endpoints: http://localhost:${PORT}/api/items/*`);
     console.log(`📋 Booking endpoints: http://localhost:${PORT}/api/bookings/*`);
+    console.log(`📁 Upload endpoints: http://localhost:${PORT}/api/upload/*`);
+    console.log(`🖼️  Static files: http://localhost:${PORT}/uploads/*`);
     // Seed database with sample data
     await (0, seedData_1.seedDatabase)();
 });
