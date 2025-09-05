@@ -306,8 +306,13 @@ const HomePage: React.FC = () => {
           <Typography variant="h4" sx={{ fontWeight: 600, mb: 3, textAlign: 'center' }}>
             Featured Items
           </Typography>
-          <Grid container spacing={3}>
-            {(featuredItemsData.length > 0 ? featuredItemsData : featuredItems).map((item: any) => (
+          {loading ? (
+            <Box sx={{ textAlign: 'center', py: 4 }}>
+              <Typography>Loading featured items...</Typography>
+            </Box>
+          ) : (
+            <Grid container spacing={3}>
+              {(featuredItemsData.length > 0 ? featuredItemsData : featuredItems).map((item: any) => (
               <Grid item xs={12} sm={6} md={3} key={item.id}>
                 <FeaturedItemCard onClick={() => navigate(`/item/${item.id}`)}>
                   <CardMedia
@@ -341,6 +346,7 @@ const HomePage: React.FC = () => {
               </Grid>
             ))}
           </Grid>
+          )}
         </Box>
 
         {/* Call to Action */}
