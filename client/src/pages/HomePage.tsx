@@ -18,8 +18,8 @@ import { useNavigate } from 'react-router-dom';
 import { itemService, Item } from '../services/itemService';
 
 const HeroSection = styled(Box)(({ theme }) => ({
-  background: 'linear-gradient(45deg, #FF5A5F 30%, #00A699 90%)',
-  minHeight: '400px',
+  background: 'linear-gradient(135deg, #007AFF 0%, #0056CC 50%, #FF9500 100%)',
+  minHeight: '600px',
   display: 'flex',
   alignItems: 'center',
   color: 'white',
@@ -32,35 +32,81 @@ const HeroSection = styled(Box)(({ theme }) => ({
     left: 0,
     right: 0,
     bottom: 0,
-    background: 'rgba(0,0,0,0.3)',
+    background: 'rgba(0,0,0,0.2)',
     zIndex: 1,
+  },
+  '&::after': {
+    content: '""',
+    position: 'absolute',
+    top: '-50%',
+    right: '-20%',
+    width: '100%',
+    height: '200%',
+    background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)',
+    transform: 'rotate(15deg)',
+    zIndex: 0,
   },
 }));
 
 const SearchBar = styled(Paper)(({ theme }) => ({
-  padding: '4px',
+  padding: '8px',
   display: 'flex',
   alignItems: 'center',
-  maxWidth: 600,
+  maxWidth: 700,
   margin: '0 auto',
-  borderRadius: '32px',
-  boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+  borderRadius: '24px',
+  boxShadow: '0 10px 40px rgba(0,0,0,0.2)',
+  backgroundColor: 'rgba(255, 255, 255, 0.95)',
+  backdropFilter: 'blur(20px)',
+  border: '1px solid rgba(255, 255, 255, 0.3)',
 }));
 
 const CategoryCard = styled(Card)(({ theme }) => ({
-  height: '200px',
+  height: '220px',
   cursor: 'pointer',
-  transition: 'transform 0.2s ease-in-out',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  borderRadius: '20px',
+  overflow: 'hidden',
+  position: 'relative',
   '&:hover': {
-    transform: 'translateY(-4px)',
+    transform: 'translateY(-8px) scale(1.02)',
+    boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
+  },
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: 'linear-gradient(135deg, rgba(0,122,255,0.1) 0%, rgba(255,149,0,0.1) 100%)',
+    opacity: 0,
+    transition: 'opacity 0.3s ease',
+    zIndex: 1,
+  },
+  '&:hover::before': {
+    opacity: 1,
   },
 }));
 
 const FeaturedItemCard = styled(Card)(({ theme }) => ({
   cursor: 'pointer',
-  transition: 'transform 0.2s ease-in-out',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  borderRadius: '20px',
+  overflow: 'hidden',
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  position: 'relative',
   '&:hover': {
-    transform: 'translateY(-2px)',
+    transform: 'translateY(-6px)',
+    boxShadow: '0 16px 32px rgba(0,0,0,0.12)',
+  },
+  '& .MuiCardMedia-root': {
+    transition: 'transform 0.3s ease',
+  },
+  '&:hover .MuiCardMedia-root': {
+    transform: 'scale(1.05)',
   },
 }));
 
@@ -231,40 +277,90 @@ const HomePage: React.FC = () => {
         <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 2 }}>
           <Box sx={{ textAlign: 'center', mb: 4 }}>
             <Typography 
-              variant="h2" 
+              variant="h1" 
               sx={{ 
-                fontWeight: 700, 
-                mb: 2,
-                fontSize: { xs: '2rem', md: '3rem' }
+                fontWeight: 800, 
+                mb: 3,
+                fontSize: { xs: '2.5rem', md: '4rem', lg: '4.5rem' },
+                background: 'linear-gradient(135deg, #FFFFFF 0%, #E5E5EA 100%)',
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                textShadow: '0 4px 20px rgba(0,0,0,0.3)',
               }}
             >
-              Rent anything, anywhere
+              Rent anything,<br />anywhere
             </Typography>
             <Typography 
               variant="h5" 
               sx={{ 
-                mb: 4, 
-                opacity: 0.9,
-                fontSize: { xs: '1.2rem', md: '1.5rem' }
+                mb: 5, 
+                opacity: 0.95,
+                fontSize: { xs: '1.1rem', md: '1.3rem' },
+                fontWeight: 400,
+                maxWidth: 600,
+                mx: 'auto',
+                lineHeight: 1.6,
               }}
             >
-              From furniture to electronics, find what you need from people around you
+              From premium electronics to designer furniture, discover thousands of items 
+              from trusted people in your community
             </Typography>
             
             {/* Search Bar */}
-            <Box component="form" onSubmit={handleSearch}>
+            <Box component="form" onSubmit={handleSearch} sx={{ mb: 4 }}>
               <SearchBar>
                 <InputBase
-                  sx={{ ml: 2, flex: 1 }}
-                  placeholder="What are you looking for?"
+                  sx={{ 
+                    ml: 3, 
+                    flex: 1, 
+                    fontSize: '1.1rem',
+                    '& input::placeholder': {
+                      color: '#8E8E93',
+                      opacity: 1,
+                    }
+                  }}
+                  placeholder="What would you like to rent today?"
                   inputProps={{ 'aria-label': 'search items' }}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
-                <IconButton type="submit" sx={{ p: '10px' }} aria-label="search">
+                <IconButton 
+                  type="submit" 
+                  sx={{ 
+                    p: '12px', 
+                    bgcolor: '#007AFF',
+                    color: 'white',
+                    mr: 1,
+                    '&:hover': {
+                      bgcolor: '#0056CC',
+                      transform: 'scale(1.05)',
+                    },
+                    transition: 'all 0.2s ease',
+                  }} 
+                  aria-label="search"
+                >
                   <SearchIcon />
                 </IconButton>
               </SearchBar>
+            </Box>
+
+            {/* Quick Stats */}
+            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 4, flexWrap: 'wrap' }}>
+              {[
+                { number: '10,000+', label: 'Items Available' },
+                { number: '5,000+', label: 'Happy Customers' },
+                { number: '25+', label: 'Cities' },
+              ].map((stat, index) => (
+                <Box key={index} sx={{ textAlign: 'center' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
+                    {stat.number}
+                  </Typography>
+                  <Typography variant="body2" sx={{ opacity: 0.8 }}>
+                    {stat.label}
+                  </Typography>
+                </Box>
+              ))}
             </Box>
           </Box>
         </Container>
@@ -272,26 +368,42 @@ const HomePage: React.FC = () => {
 
       <Container maxWidth="lg" sx={{ py: 6 }}>
         {/* Browse by Category */}
-        <Box sx={{ mb: 6 }}>
-          <Typography variant="h4" sx={{ fontWeight: 600, mb: 3, textAlign: 'center' }}>
-            Browse by Category
-          </Typography>
+        <Box sx={{ mb: 8 }}>
+          <Box sx={{ textAlign: 'center', mb: 5 }}>
+            <Typography variant="h3" sx={{ fontWeight: 700, mb: 2 }}>
+              Browse by Category
+            </Typography>
+            <Typography variant="h6" sx={{ color: 'text.secondary', fontWeight: 400 }}>
+              Discover items across popular categories
+            </Typography>
+          </Box>
           <Grid container spacing={3}>
             {categories.map((category) => (
               <Grid item xs={12} sm={6} md={4} key={category.id}>
                 <CategoryCard>
                   <CardMedia
                     component="img"
-                    height="140"
+                    height="160"
                     image={category.image}
                     alt={category.name}
-                    sx={{ objectFit: 'cover' }}
+                    sx={{ 
+                      objectFit: 'cover',
+                      filter: 'brightness(0.9)',
+                    }}
                   />
-                  <CardContent>
-                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  <CardContent sx={{ 
+                    position: 'absolute', 
+                    bottom: 0, 
+                    left: 0, 
+                    right: 0, 
+                    background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%)',
+                    color: 'white',
+                    zIndex: 2,
+                  }}>
+                    <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
                       {category.name}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant="body2" sx={{ opacity: 0.9 }}>
                       {category.count}
                     </Typography>
                   </CardContent>
@@ -302,82 +414,173 @@ const HomePage: React.FC = () => {
         </Box>
 
         {/* Featured Items */}
-        <Box sx={{ mb: 6 }}>
-          <Typography variant="h4" sx={{ fontWeight: 600, mb: 3, textAlign: 'center' }}>
-            Featured Items
-          </Typography>
+        <Box sx={{ mb: 8 }}>
+          <Box sx={{ textAlign: 'center', mb: 5 }}>
+            <Typography variant="h3" sx={{ fontWeight: 700, mb: 2 }}>
+              Featured Items
+            </Typography>
+            <Typography variant="h6" sx={{ color: 'text.secondary', fontWeight: 400 }}>
+              Handpicked premium items from trusted owners
+            </Typography>
+          </Box>
           {loading ? (
-            <Box sx={{ textAlign: 'center', py: 4 }}>
-              <Typography>Loading featured items...</Typography>
+            <Box sx={{ textAlign: 'center', py: 8 }}>
+              <Typography variant="h6" color="text.secondary">Loading amazing items...</Typography>
             </Box>
           ) : (
             <Grid container spacing={3}>
               {(featuredItemsData.length > 0 ? featuredItemsData : featuredItems).map((item: any) => (
-              <Grid item xs={12} sm={6} md={3} key={item.id}>
+              <Grid item xs={12} sm={6} md={4} lg={3} key={item.id}>
                 <FeaturedItemCard onClick={() => navigate(`/item/${item.id}`)}>
-                  <CardMedia
-                    component="img"
-                    height="200"
-                    image={item.images?.[0] || item.image}
-                    alt={item.title || item.name}
-                    sx={{ objectFit: 'cover' }}
-                  />
-                  <CardContent>
-                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, fontSize: '1rem' }}>
-                      {item.title || item.name}
-                    </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                      <Star sx={{ color: '#FFD700', fontSize: '1rem', mr: 0.5 }} />
-                      <Typography variant="body2" sx={{ mr: 1 }}>
+                  <Box sx={{ position: 'relative', overflow: 'hidden' }}>
+                    <CardMedia
+                      component="img"
+                      height="220"
+                      image={item.images?.[0] || item.image}
+                      alt={item.title || item.name}
+                      sx={{ objectFit: 'cover' }}
+                    />
+                    <Box sx={{
+                      position: 'absolute',
+                      top: 12,
+                      right: 12,
+                      bgcolor: 'rgba(255, 255, 255, 0.9)',
+                      borderRadius: '20px',
+                      px: 1.5,
+                      py: 0.5,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 0.5,
+                    }}>
+                      <Star sx={{ color: '#FFD700', fontSize: '1rem' }} />
+                      <Typography variant="caption" sx={{ fontWeight: 600 }}>
                         {item.ratings?.average || item.rating}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        ({item.ratings?.count || item.reviews} reviews)
-                      </Typography>
                     </Box>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                  </Box>
+                  <CardContent sx={{ p: 2.5, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                    <Typography variant="h6" sx={{ 
+                      fontWeight: 600, 
+                      mb: 1, 
+                      fontSize: '1.1rem',
+                      lineHeight: 1.3,
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                    }}>
+                      {item.title || item.name}
+                    </Typography>
+                    
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                       {item.location?.city ? `${item.location.city}, ${item.location.state}` : item.location}
                     </Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main' }}>
-                      {item.pricing ? `₹${item.pricing.daily}/day` : item.price}
-                    </Typography>
+                    
+                    <Box sx={{ mt: 'auto' }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography variant="h6" sx={{ 
+                          fontWeight: 700, 
+                          color: 'primary.main',
+                          fontSize: '1.2rem',
+                        }}>
+                          {item.pricing ? `₹${item.pricing.daily}/day` : item.price}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          ({item.ratings?.count || item.reviews} reviews)
+                        </Typography>
+                      </Box>
+                    </Box>
                   </CardContent>
                 </FeaturedItemCard>
               </Grid>
             ))}
           </Grid>
           )}
+          
+          <Box sx={{ textAlign: 'center', mt: 5 }}>
+            <Button 
+              variant="outlined" 
+              size="large"
+              onClick={() => navigate('/listings')}
+              sx={{ 
+                px: 4,
+                py: 1.5,
+                fontSize: '1.1rem',
+                borderWidth: 2,
+                '&:hover': {
+                  borderWidth: 2,
+                }
+              }}
+            >
+              View All Items
+            </Button>
+          </Box>
         </Box>
 
         {/* Call to Action */}
         <Box 
           sx={{ 
+            position: 'relative',
             textAlign: 'center', 
-            py: 6,
-            backgroundColor: '#f8f9fa',
-            borderRadius: 2,
-            mb: 4
+            py: 8,
+            background: 'linear-gradient(135deg, #007AFF15 0%, #FF950015 100%)',
+            borderRadius: 4,
+            mb: 6,
+            overflow: 'hidden',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'url("data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23007AFF" fill-opacity="0.03"%3E%3Ccircle cx="30" cy="30" r="4"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
+              opacity: 0.5,
+            }
           }}
         >
-          <Typography variant="h4" sx={{ fontWeight: 600, mb: 2 }}>
+          <Typography variant="h3" sx={{ fontWeight: 700, mb: 3 }}>
             Start earning by listing your items
           </Typography>
-          <Typography variant="body1" sx={{ mb: 3, color: 'text.secondary', maxWidth: 600, mx: 'auto' }}>
+          <Typography variant="h6" sx={{ 
+            mb: 4, 
+            color: 'text.secondary', 
+            maxWidth: 700, 
+            mx: 'auto',
+            fontWeight: 400,
+            lineHeight: 1.6,
+          }}>
             Turn your unused items into income. List your furniture, electronics, tools, and more 
-            to help others while earning money.
+            to help others while earning money in a trusted community.
           </Typography>
-          <Button 
-            variant="contained" 
-            size="large"
-            sx={{ 
-              bgcolor: 'primary.main',
-              px: 4,
-              py: 1.5,
-              fontSize: '1.1rem'
-            }}
-          >
-            List your first item
-          </Button>
+          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Button 
+              variant="contained" 
+              size="large"
+              sx={{ 
+                px: 4,
+                py: 1.5,
+                fontSize: '1.1rem',
+                borderRadius: 3,
+              }}
+            >
+              List your first item
+            </Button>
+            <Button 
+              variant="outlined" 
+              size="large"
+              sx={{ 
+                px: 4,
+                py: 1.5,
+                fontSize: '1.1rem',
+                borderRadius: 3,
+                borderWidth: 2,
+                '&:hover': { borderWidth: 2 }
+              }}
+            >
+              Learn how it works
+            </Button>
+          </Box>
         </Box>
 
         {/* Trust Indicators */}

@@ -126,6 +126,19 @@ const Navbar: React.FC = () => {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           {isAuthenticated ? (
             <>
+              {/* Admin Link - TODO: Add proper admin role check */}
+              <Button
+                variant="text"
+                sx={{ 
+                  color: 'text.primary',
+                  fontWeight: 600,
+                  display: { xs: 'none', sm: 'inline-flex' }
+                }}
+                onClick={() => navigate('/admin')}
+              >
+                Admin
+              </Button>
+
               {/* Host your item button */}
               <Button
                 variant="text"
