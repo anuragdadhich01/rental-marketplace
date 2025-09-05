@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Container,
@@ -11,6 +11,8 @@ import {
   Avatar,
   LinearProgress,
   IconButton,
+  CircularProgress,
+  Alert,
 } from '@mui/material';
 import {
   People as PeopleIcon,
@@ -24,15 +26,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import AdminSidebar from '../../components/admin/AdminSidebar';
-
-interface DashboardStats {
-  totalUsers: number;
-  activeUsers: number;
-  totalItems: number;
-  activeBookings: number;
-  revenue: number;
-  growthRate: number;
-}
+import adminService, { AdminStats } from '../../services/adminService';
 
 interface RecentActivity {
   id: string;
@@ -45,14 +39,27 @@ interface RecentActivity {
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const [stats] = useState<DashboardStats>({
-    totalUsers: 5247,
-    activeUsers: 1832,
-    totalItems: 12456,
-    activeBookings: 284,
-    revenue: 89750,
-    growthRate: 12.5,
-  });
+  const [stats, setStats] = useState<AdminStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const fetchStats = async () => {
+    try {
+      setLoading(true);
+      const statsData = await adminService.getStats();
+      setStats(statsData);
+      setError(null);
+    } catch (err) {
+      setError('Failed to fetch dashboard stats. Please try again.');
+      console.error('Error fetching stats:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const [recentActivity] = useState<RecentActivity[]>([
     {
@@ -86,6 +93,34 @@ const AdminDashboard: React.FC = () => {
     },
   ]);
 
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
+        <AdminSidebar />
+        <Box component="main" sx={{ flexGrow: 1, p: 3, ml: { xs: 0, md: '280px' } }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+            <CircularProgress />
+          </Box>
+        </Box>
+      </Box>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
+        <AdminSidebar />
+        <Box component="main" sx={{ flexGrow: 1, p: 3, ml: { xs: 0, md: '280px' } }}>
+          <Container maxWidth="xl">
+            <Alert severity="error">
+              Failed to load dashboard data. Please try again.
+            </Alert>
+          </Container>
+        </Box>
+      </Box>
+    );
+  }
+
   const statCards = [
     {
       title: 'Total Users',
@@ -112,9 +147,9 @@ const AdminDashboard: React.FC = () => {
       color: '#FF9500',
     },
     {
-      title: 'Revenue',
-      value: `₹${stats.revenue.toLocaleString()}`,
-      change: '+18%',
+      title: 'Admin Users',
+      value: stats.adminUsers.toLocaleString(),
+      change: 'Static',
       positive: true,
       icon: <TrendingUp />,
       color: '#FF3B30',
@@ -127,6 +162,12 @@ const AdminDashboard: React.FC = () => {
       
       <Box component="main" sx={{ flexGrow: 1, p: 3, ml: { xs: 0, md: '280px' } }}>
         <Container maxWidth="xl">
+          {error && (
+            <Alert severity="error" sx={{ mb: 3 }}>
+              {error}
+            </Alert>
+          )}
+          
           {/* Header */}
           <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Box>

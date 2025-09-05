@@ -49,6 +49,7 @@ export const register = async (req: Request, res: Response) => {
       email,
       password: hashedPassword,
       phone,
+      role: 'user',
       isVerified: false,
       verifications: {
         email: false,

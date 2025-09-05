@@ -9,6 +9,7 @@ import authRoutes from './routes/auth';
 import itemRoutes from './routes/items';
 import bookingRoutes from './routes/bookings';
 import uploadRoutes from './routes/upload';
+import adminRoutes from './routes/admin';
 
 // Utils
 import { seedDatabase } from './utils/seedData';
@@ -50,6 +51,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/items', itemRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Basic error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

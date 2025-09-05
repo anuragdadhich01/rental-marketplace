@@ -7,6 +7,7 @@ export interface IUser {
   phone?: string;
   avatar?: string;
   bio?: string;
+  role: 'user' | 'admin';
   location?: {
     city: string;
     state: string;

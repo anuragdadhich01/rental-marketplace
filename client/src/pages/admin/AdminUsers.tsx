@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Container,
@@ -26,6 +26,8 @@ import {
   FormControl,
   InputLabel,
   Select,
+  CircularProgress,
+  Alert,
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -37,80 +39,48 @@ import {
   Add as AddIcon,
 } from '@mui/icons-material';
 import AdminSidebar from '../../components/admin/AdminSidebar';
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  avatar?: string;
-  status: 'active' | 'suspended' | 'pending';
-  verified: boolean;
-  joinDate: string;
-  totalListings: number;
-  totalBookings: number;
-  trustScore: number;
-}
+import adminService, { AdminUser } from '../../services/adminService';
 
 const AdminUsers: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [users, setUsers] = useState<AdminUser[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const [users] = useState<User[]>([
-    {
-      id: '1',
-      name: 'Priya Sharma',
-      email: 'priya.sharma@gmail.com',
-      phone: '+91 98765 43210',
-      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b932352b?w=100',
-      status: 'active',
-      verified: true,
-      joinDate: '2024-01-15',
-      totalListings: 12,
-      totalBookings: 8,
-      trustScore: 4.8,
-    },
-    {
-      id: '2',
-      name: 'Rahul Kumar',
-      email: 'rahul.kumar@yahoo.com',
-      phone: '+91 87654 32109',
-      status: 'active',
-      verified: false,
-      joinDate: '2024-02-20',
-      totalListings: 5,
-      totalBookings: 15,
-      trustScore: 4.2,
-    },
-    {
-      id: '3',
-      name: 'Anita Patel',
-      email: 'anita.patel@hotmail.com',
-      phone: '+91 76543 21098',
-      status: 'pending',
-      verified: false,
-      joinDate: '2024-03-10',
-      totalListings: 2,
-      totalBookings: 1,
-      trustScore: 3.9,
-    },
-    {
-      id: '4',
-      name: 'Suresh Gupta',
-      email: 'suresh.gupta@gmail.com',
-      phone: '+91 65432 10987',
-      status: 'suspended',
-      verified: true,
-      joinDate: '2024-01-05',
-      totalListings: 20,
-      totalBookings: 3,
-      trustScore: 2.1,
-    },
-  ]);
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, user: User) => {
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const usersData = await adminService.getAllUsers();
+      setUsers(usersData);
+      setError(null);
+    } catch (err) {
+      setError('Failed to fetch users. Please try again.');
+      console.error('Error fetching users:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyUser = async (user: AdminUser) => {
+    try {
+      const updatedUser = await adminService.updateUserStatus(user.id, !user.isVerified);
+      setUsers(users.map(u => u.id === user.id ? updatedUser : u));
+      setAnchorEl(null);
+      setSelectedUser(null);
+    } catch (err) {
+      setError('Failed to update user status. Please try again.');
+      console.error('Error updating user:', err);
+    }
+  };
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, user: AdminUser) => {
     setAnchorEl(event.currentTarget);
     setSelectedUser(user);
   };
@@ -120,20 +90,30 @@ const AdminUsers: React.FC = () => {
     setSelectedUser(null);
   };
 
-  const getStatusChip = (status: string) => {
-    const configs = {
-      active: { color: 'success', label: 'Active' },
-      suspended: { color: 'error', label: 'Suspended' },
-      pending: { color: 'warning', label: 'Pending' },
-    };
-    const config = configs[status as keyof typeof configs];
-    return <Chip label={config.label} color={config.color as any} size="small" />;
+  const getStatusChip = (user: AdminUser) => {
+    if (!user.isVerified) {
+      return <Chip label="Pending" color="warning" size="small" />;
+    }
+    return <Chip label="Active" color="success" size="small" />;
   };
 
   const filteredUsers = users.filter(user =>
-    user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    `${user.firstName} ${user.lastName}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
     user.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
+        <AdminSidebar />
+        <Box component="main" sx={{ flexGrow: 1, p: 3, ml: { xs: 0, md: '280px' } }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+            <CircularProgress />
+          </Box>
+        </Box>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
@@ -148,7 +128,7 @@ const AdminUsers: React.FC = () => {
                 User Management
               </Typography>
               <Typography variant="body1" color="text.secondary">
-                Manage and monitor all registered users
+                Manage and monitor all registered users ({users.length} total)
               </Typography>
             </Box>
             <Button
@@ -159,6 +139,12 @@ const AdminUsers: React.FC = () => {
               Add User
             </Button>
           </Box>
+
+          {error && (
+            <Alert severity="error" sx={{ mb: 3 }}>
+              {error}
+            </Alert>
+          )}
 
           {/* Search and Filters */}
           <Card sx={{ mb: 3 }}>
@@ -206,11 +192,12 @@ const AdminUsers: React.FC = () => {
                   <TableRow>
                     <TableCell>User</TableCell>
                     <TableCell>Contact</TableCell>
+                    <TableCell>Role</TableCell>
                     <TableCell>Status</TableCell>
                     <TableCell>Verified</TableCell>
                     <TableCell>Trust Score</TableCell>
                     <TableCell>Listings</TableCell>
-                    <TableCell>Bookings</TableCell>
+                    <TableCell>Rentals</TableCell>
                     <TableCell>Join Date</TableCell>
                     <TableCell align="right">Actions</TableCell>
                   </TableRow>
@@ -221,11 +208,11 @@ const AdminUsers: React.FC = () => {
                       <TableCell>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                           <Avatar src={user.avatar} sx={{ width: 40, height: 40 }}>
-                            {user.name.charAt(0)}
+                            {`${user.firstName} ${user.lastName}`.charAt(0)}
                           </Avatar>
                           <Box>
                             <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                              {user.name}
+                              {`${user.firstName} ${user.lastName}`}
                             </Typography>
                             <Typography variant="caption" color="text.secondary">
                               ID: {user.id}
@@ -237,13 +224,20 @@ const AdminUsers: React.FC = () => {
                         <Box>
                           <Typography variant="body2">{user.email}</Typography>
                           <Typography variant="caption" color="text.secondary">
-                            {user.phone}
+                            {user.phone || 'No phone'}
                           </Typography>
                         </Box>
                       </TableCell>
-                      <TableCell>{getStatusChip(user.status)}</TableCell>
                       <TableCell>
-                        {user.verified ? (
+                        <Chip 
+                          label={user.role === 'admin' ? 'Admin' : 'User'} 
+                          color={user.role === 'admin' ? 'primary' : 'default'} 
+                          size="small" 
+                        />
+                      </TableCell>
+                      <TableCell>{getStatusChip(user)}</TableCell>
+                      <TableCell>
+                        {user.isVerified ? (
                           <Chip
                             icon={<VerifyIcon />}
                             label="Verified"
@@ -269,11 +263,11 @@ const AdminUsers: React.FC = () => {
                         <Typography variant="body2">{user.totalListings}</Typography>
                       </TableCell>
                       <TableCell>
-                        <Typography variant="body2">{user.totalBookings}</Typography>
+                        <Typography variant="body2">{user.totalRentals}</Typography>
                       </TableCell>
                       <TableCell>
                         <Typography variant="body2">
-                          {new Date(user.joinDate).toLocaleDateString()}
+                          {new Date(user.joinedAt).toLocaleDateString()}
                         </Typography>
                       </TableCell>
                       <TableCell align="right">
@@ -305,9 +299,15 @@ const AdminUsers: React.FC = () => {
               <EmailIcon sx={{ mr: 1 }} />
               Send Message
             </MenuItem>
-            <MenuItem onClick={handleMenuClose}>
+            <MenuItem 
+              onClick={() => {
+                if (selectedUser) {
+                  handleVerifyUser(selectedUser);
+                }
+              }}
+            >
               <VerifyIcon sx={{ mr: 1 }} />
-              Verify User
+              {selectedUser?.isVerified ? 'Unverify User' : 'Verify User'}
             </MenuItem>
             <MenuItem onClick={handleMenuClose} sx={{ color: 'error.main' }}>
               <BlockIcon sx={{ mr: 1 }} />

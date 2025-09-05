@@ -29,6 +29,7 @@ class PostgresDB implements DatabaseInterface {
           phone VARCHAR(20),
           avatar TEXT,
           bio TEXT,
+          role VARCHAR(10) DEFAULT 'user' CHECK (role IN ('user', 'admin')),
           location JSONB,
           is_verified BOOLEAN DEFAULT false,
           verifications JSONB DEFAULT '{"email": false, "phone": false, "identity": false}',
@@ -118,13 +119,13 @@ class PostgresDB implements DatabaseInterface {
     const client = await this.pool.connect();
     try {
       const query = `
-        INSERT INTO users (id, first_name, last_name, email, password, phone, avatar, bio, location, is_verified, verifications, trust_score, total_rentals, total_listings, joined_at, last_active_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+        INSERT INTO users (id, first_name, last_name, email, password, phone, avatar, bio, role, location, is_verified, verifications, trust_score, total_rentals, total_listings, joined_at, last_active_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
         RETURNING *
       `;
       const values = [
         user.id, user.firstName, user.lastName, user.email, user.password,
-        user.phone, user.avatar, user.bio, JSON.stringify(user.location),
+        user.phone, user.avatar, user.bio, user.role, JSON.stringify(user.location),
         user.isVerified, JSON.stringify(user.verifications), user.trustScore,
         user.totalRentals, user.totalListings, user.joinedAt, user.lastActiveAt
       ];
@@ -353,6 +354,7 @@ class PostgresDB implements DatabaseInterface {
       phone: row.phone,
       avatar: row.avatar,
       bio: row.bio,
+      role: row.role || 'user',
       location: row.location,
       isVerified: row.is_verified,
       verifications: row.verifications,
