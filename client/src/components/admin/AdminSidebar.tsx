@@ -10,7 +10,6 @@ import {
   Typography,
   Divider,
   Avatar,
-  IconButton,
 } from '@mui/material';
 import {
   Dashboard as DashboardIcon,

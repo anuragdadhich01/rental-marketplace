@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Container,
@@ -6,28 +6,18 @@ import {
   Grid,
   Card,
   CardContent,
-  Paper,
   Button,
   Chip,
   Avatar,
-  IconButton,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   LinearProgress,
-  Divider,
+  IconButton,
 } from '@mui/material';
 import {
-  Dashboard as DashboardIcon,
   People as PeopleIcon,
   Inventory as InventoryIcon,
   BookmarkBorder as BookingIcon,
   TrendingUp,
   TrendingDown,
-  MoreVert,
   Settings,
   Notifications,
   Analytics,
@@ -55,7 +45,7 @@ interface RecentActivity {
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const [stats, setStats] = useState<DashboardStats>({
+  const [stats] = useState<DashboardStats>({
     totalUsers: 5247,
     activeUsers: 1832,
     totalItems: 12456,
