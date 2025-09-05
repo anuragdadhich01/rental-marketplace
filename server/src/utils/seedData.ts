@@ -1,5 +1,6 @@
 import { IItem, IUser, ItemCategory, ItemCondition } from '../types';
 import { db } from './database';
+import { hashPassword } from './auth';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
@@ -14,6 +15,7 @@ const sampleUsers: IUser[] = [
     phone: '+91-9876543210',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
     bio: 'Tech enthusiast and gadget lover',
+    role: 'user' as const,
     location: {
       city: 'Mumbai',
       state: 'Maharashtra',
@@ -44,6 +46,7 @@ const sampleUsers: IUser[] = [
     phone: '+91-9876543211',
     avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150',
     bio: 'Photography enthusiast and camera expert',
+    role: 'admin' as const,
     location: {
       city: 'Delhi',
       state: 'NCR',
@@ -74,6 +77,7 @@ const sampleUsers: IUser[] = [
     phone: '+91-9876543212',
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
     bio: 'Office furniture and ergonomic solutions specialist',
+    role: 'user' as const,
     location: {
       city: 'Bangalore',
       state: 'Karnataka',
@@ -402,9 +406,11 @@ export async function seedDatabase() {
   try {
     console.log('🌱 Seeding database with sample data...');
     
-    // Add users
+    // Hash passwords and add users
     for (const user of sampleUsers) {
-      await db.createUser(user);
+      const hashedPassword = await hashPassword('password123'); // Use a common password for demo
+      const userWithHashedPassword = { ...user, password: hashedPassword };
+      await db.createUser(userWithHashedPassword);
     }
     console.log(`✅ Added ${sampleUsers.length} sample users`);
     
@@ -415,6 +421,9 @@ export async function seedDatabase() {
     console.log(`✅ Added ${sampleItems.length} sample items`);
     
     console.log('🎉 Database seeded successfully!');
+    console.log('🔑 Demo login credentials:');
+    console.log('   Admin: priya@example.com / password123');
+    console.log('   User: rahul@example.com / password123');
   } catch (error) {
     console.error('❌ Error seeding database:', error);
   }
