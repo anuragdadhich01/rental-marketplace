@@ -11,6 +11,8 @@ const dotenv_1 = __importDefault(require("dotenv"));
 // Routes
 const auth_1 = __importDefault(require("./routes/auth"));
 const items_1 = __importDefault(require("./routes/items"));
+// Utils
+const seedData_1 = require("./utils/seedData");
 // Load environment variables
 dotenv_1.default.config();
 const app = (0, express_1.default)();
@@ -50,10 +52,12 @@ app.use((req, res) => {
         path: req.path
     });
 });
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
     console.log(`🔐 Auth endpoints: http://localhost:${PORT}/api/auth/*`);
     console.log(`📦 Items endpoints: http://localhost:${PORT}/api/items/*`);
+    // Seed database with sample data
+    await (0, seedData_1.seedDatabase)();
 });
 exports.default = app;

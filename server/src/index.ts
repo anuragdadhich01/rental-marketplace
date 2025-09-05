@@ -8,6 +8,9 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth';
 import itemRoutes from './routes/items';
 
+// Utils
+import { seedDatabase } from './utils/seedData';
+
 // Load environment variables
 dotenv.config();
 
@@ -54,11 +57,14 @@ app.use((req, res) => {
   });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
   console.log(`🔐 Auth endpoints: http://localhost:${PORT}/api/auth/*`);
   console.log(`📦 Items endpoints: http://localhost:${PORT}/api/items/*`);
+  
+  // Seed database with sample data
+  await seedDatabase();
 });
 
 export default app;
